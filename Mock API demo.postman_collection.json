@@ -1,0 +1,669 @@
+{
+	"info": {
+		"_postman_id": "7c2e2305-6554-4cee-a5fd-608bf1efd4be",
+		"name": "Mock API demo",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11906441"
+	},
+	"item": [
+		{
+			"name": "nespravna autorizacia - 401",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1. Skontroluj, že status kód je 401\r",
+							"pm.test(\"Status code is 401 when no or bad authorization is sent\", function () {\r",
+							"    pm.response.to.have.status(401);\r",
+							"});\r",
+							"\r",
+							"// 2. Response time\r",
+							"pm.test(\"Response time is less than 500ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/people/{{requestedId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"people",
+						"{{requestedId}}"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "string namiesto number - 400",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1. Skontroluj, že status kód je 400\r",
+							"pm.test(\"Status code is 400 for invalid id format\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"// 2. Response time\r",
+							"pm.test(\"Response time is less than 500ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "password",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/people/{{requestedIdString}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"people",
+						"{{requestedIdString}}"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "nezname ID - 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1. Skontroluj, že status kód je 404 Not Found\r",
+							"pm.test(\"Status code is 404 for non-existent ID\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"// 2. Response time\r",
+							"pm.test(\"Response time is less than 500ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-PW-AccessToken",
+						"value": "{{token}}"
+					},
+					{
+						"key": "X-PW-Application",
+						"value": "developer_api"
+					},
+					{
+						"key": "X-PW-UserEmail",
+						"value": "{{email}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/people/{{requestedIdNonExistent}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"people",
+						"{{requestedIdNonExistent}}"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "vytvori novy zaznam - 201",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1. Status code musí byť 201\r",
+							"pm.test(\"Status is 201\", () => pm.response.to.have.status(201));\r",
+							"\r",
+							"let responseJson = pm.response.json();\r",
+							"pm.environment.set(\"createdPersonId\", responseJson.id);\r",
+							"\r",
+							"// 2. Response obsahuje nové id\r",
+							"pm.test(\"Response has id\", () => {\r",
+							"    pm.expect(responseJson.id).to.be.a(\"number\");\r",
+							"});\r",
+							"\r",
+							"// 3. Response obsahuje správne meno\r",
+							"pm.test(\"First name is correct\", () => {\r",
+							"    pm.expect(responseJson.firstName).to.eql(\"Ján\");\r",
+							"});\r",
+							"\r",
+							"// 4. Response time\r",
+							"pm.test(\"Response time is less than 500ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"firstName\": \"Ján\",\r\n  \"lastName\": \"Nový\",\r\n  \"age\": 32,\r\n  \"email\": \"jan.novy@example.com\",\r\n  \"phone\": \"+421987654321\",\r\n  \"address\": \"Brno\",\r\n  \"active\": true\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/people",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"people"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "overi novy zaznam - 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1. Skontroluj, že status kód je 200\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// 2. Skontroluj, že v odpovedi je JSON a obsahuje pole\r",
+							"pm.test(\"Response is JSON array\", function () {\r",
+							"    pm.response.to.be.json;\r",
+							"    pm.expect(pm.response.json()).to.be.an('object');\r",
+							"});\r",
+							"\r",
+							"// 3. Ak request vracia jednu osobu\r",
+							"pm.test(\"Response has id equal to requested\", function () {\r",
+							"    let responseJson = pm.response.json();\r",
+							"    pm.expect(responseJson.id).to.eql(parseInt(pm.environment.get(\"createdPersonId\")));\r",
+							"});\r",
+							"\r",
+							"// 4. Response time\r",
+							"pm.test(\"Response time is less than 500ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/people/{{createdPersonId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"people",
+						"{{createdPersonId}}"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "overi cely zoznam - 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1. Status code musí byť 200 OK\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// 2. Response musí byť JSON pole\r",
+							"pm.test(\"Response is JSON array\", function () {\r",
+							"    pm.response.to.be.json;\r",
+							"    pm.expect(pm.response.json()).to.be.an('array');\r",
+							"});\r",
+							"\r",
+							"// 3. Over, že pole nie je prázdne\r",
+							"pm.test(\"Response array is not empty\", function () {\r",
+							"    pm.expect(pm.response.json().length).to.be.above(0);\r",
+							"});\r",
+							"\r",
+							"// 4. Over, že vytvorená osoba je v zozname\r",
+							"let people = pm.response.json();\r",
+							"let id = parseInt(pm.environment.get(\"createdPersonId\"));\r",
+							"\r",
+							"pm.test(\"Created person is in list\", () => {\r",
+							"    pm.expect(people.some(p => p.id === id)).to.be.true;\r",
+							"});\r",
+							"\r",
+							"// 5. Over základné vlastnosti prvej osoby - validný JSON\r",
+							"pm.test(\"First person object has required properties\", function () {\r",
+							"    let firstPerson = pm.response.json()[0];\r",
+							"    pm.expect(firstPerson).to.have.property(\"id\");\r",
+							"    pm.expect(firstPerson).to.have.property(\"firstName\");\r",
+							"    pm.expect(firstPerson).to.have.property(\"lastName\");\r",
+							"    pm.expect(firstPerson).to.have.property(\"age\");\r",
+							"    pm.expect(firstPerson).to.have.property(\"email\");\r",
+							"    pm.expect(firstPerson).to.have.property(\"phone\");\r",
+							"    pm.expect(firstPerson).to.have.property(\"address\");\r",
+							"    pm.expect(firstPerson).to.have.property(\"active\");\r",
+							"});\r",
+							"\r",
+							"// 6. Over, že všetky osoby majú unikátne id\r",
+							"pm.test(\"All persons have unique IDs\", function () {\r",
+							"    let persons = pm.response.json();\r",
+							"    let ids = persons.map(p => p.id);\r",
+							"    let uniqueIds = [...new Set(ids)];\r",
+							"    pm.expect(ids.length).to.eql(uniqueIds.length);\r",
+							"});\r",
+							"\r",
+							"// 7. Over, že všetky osoby majú platný email (základný regex)\r",
+							"pm.test(\"All persons have valid email addresses\", function () {\r",
+							"    let persons = pm.response.json();\r",
+							"    let emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\r",
+							"    persons.forEach(person => {\r",
+							"        pm.expect(person.email).to.match(emailRegex);\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"// 8. Over, že vek je rozumný (napr. medzi 0 a 120)\r",
+							"pm.test(\"All persons have valid age\", function () {\r",
+							"    let persons = pm.response.json();\r",
+							"    persons.forEach(person => {\r",
+							"        pm.expect(person.age).to.be.within(0, 120);\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"// 9. Response time\r",
+							"pm.test(\"Response time is less than 500ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/people",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"people"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "zmaze pridany zaznam -  204",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// // 1. Status code musí byť 204\r",
+							"pm.test(\"Status is 204\", () => pm.response.to.have.status(204));\r",
+							"\r",
+							"// Ulož ID mazanej osoby pre ďalšie testy\r",
+							"pm.environment.set(\"deletedPersonId\", pm.variables.get(\"createdPersonId\"));\r",
+							"\r",
+							"// 2. Response time\r",
+							"pm.test(\"Response time is less than 500ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/people/{{createdPersonId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"people",
+						"{{createdPersonId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "overi zmazanie - 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1. Status code musí byť 404\r",
+							"pm.test(\"Status is 404\", () => pm.response.to.have.status(404));\r",
+							"\r",
+							"// 2. Response musí byť JSON\r",
+							"pm.test(\"Response is JSON\", () => {\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"// 3. Response time\r",
+							"pm.test(\"Response time is less than 500ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/people/{{deletedPersonId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"people",
+						"{{deletedPersonId}}"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "overi zoznam - 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const people = pm.response.json();\r",
+							"\r",
+							"// 1. Zmazaná osoba nie je v zozname\r",
+							"pm.test(\"Deleted person is NOT in list\", () => {\r",
+							"    pm.expect(Array.isArray(people)).to.be.true;  // over, že je to pole\r",
+							"    if (Array.isArray(people)) {\r",
+							"        const deletedId = parseInt(pm.environment.get(\"deletedPersonId\"));\r",
+							"        pm.expect(people.some(person => person.id === deletedId)).to.be.false;\r",
+							"    } else {\r",
+							"        pm.expect.fail(\"Response is not an array\");\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"// 2. Response time\r",
+							"pm.test(\"Response time is less than 500ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/people",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"people"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "znovu zmazanie - 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1. Status code musí byť 404\r",
+							"pm.test(\"Status is 404 for deleting non-existent person\", () => {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"// 2. Response time\r",
+							"pm.test(\"Response time is less than 500ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/people/{{createdPersonId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"people",
+						"{{createdPersonId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "zoznam aktivnych ludi - 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1. Status code musí byť 200\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// 2. Response musí byť JSON pole\r",
+							"pm.test(\"Response is JSON array\", function () {\r",
+							"    pm.response.to.be.json;\r",
+							"    pm.expect(pm.response.json()).to.be.an('array');\r",
+							"});\r",
+							"\r",
+							"// 3. Pole nesmie byť prázdne\r",
+							"pm.test(\"Response array is not empty\", function () {\r",
+							"    pm.expect(pm.response.json().length).to.be.above(0);\r",
+							"});\r",
+							"\r",
+							"// 4. Všetky osoby musia mať active === true\r",
+							"pm.test(\"All persons have active === true\", function () {\r",
+							"    let persons = pm.response.json();\r",
+							"    persons.forEach(person => {\r",
+							"        pm.expect(person.active).to.eql(true);\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"// 5. Response time\r",
+							"pm.test(\"Response time is less than 500ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/people?active=true",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"people"
+					],
+					"query": [
+						{
+							"key": "active",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "{{authPassword}}",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "{{authUsername}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

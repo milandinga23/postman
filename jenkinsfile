@@ -1,0 +1,33 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Install Newman') {
+            steps {
+                bat '''
+                "C:\\Program Files\\nodejs\\npm.cmd" install -g newman
+                "C:\\Program Files\\nodejs\\npm.cmd" install -g newman-reporter-allure
+                '''
+            }
+        }
+
+        stage('Run API tests') {
+            steps {
+                bat '''
+                set PATH=C:\\Users\\dinga\\AppData\\Roaming\\npm;C:\\Program Files\\nodejs;%PATH%
+                newman run "Mock API demo.postman_collection.json" --environment "Localhost.postman_environment.json" --reporters cli,junit,allure --reporter-allure-export ./allure-results
+                '''
+            }
+        }
+
+
+        stage('Allure Report') {
+            steps {
+                allure([
+                results: [[path: 'allure-results']],
+                reportBuildPolicy: 'ALWAYS'
+                ])
+            }
+        }
+    }
+}
